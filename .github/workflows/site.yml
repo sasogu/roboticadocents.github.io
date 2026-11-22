@@ -48,6 +48,7 @@ jobs:
           node --check _scripts/dev.js
           node --check _scripts/test.js
           node --check _scripts/build-bilingual.js
+          node --check _scripts/prefix-base.js
       - name: Executar suite de validació (HTML estàtic, Markdown semàntic i tutorials)
         run: node _scripts/test.js
       # Versió en castellà: es compila des de la branca `traduccion-es` i es publica a /es/.
@@ -93,6 +94,12 @@ jobs:
           path: dist
           include-hidden-files: true
           if-no-files-found: error
+      # Fork con Pages de proyecto (https://<usuari>.github.io/<repo>/): les URL absolutes
+      # del lloc («/_css/…», «/es/…») necessiten la subruta del repositori.
+      - name: Afegir la subruta del repositori (només forks)
+        if: github.repository != 'roboticadocents/roboticadocents.github.io'
+        run: node _scripts/prefix-base.js dist-bilingue "/${GITHUB_REPOSITORY#*/}"
+
       - name: Preparar artefacto de Pages
         if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
         uses: actions/upload-pages-artifact@v3
